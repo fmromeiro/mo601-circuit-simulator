@@ -24,11 +24,22 @@ if __name__ == '__main__':
     for test in find_tests():
         circuit = build_circuit(test)
         simulator = build_simulator(test, circuit)
-        state = simulator.simulate_0()
+        state = simulator.simulate_0_1()
         signals = sorted(state[0].keys())
         max_clock = max(state.keys())
 
-        print(*signals, sep=',')
-        for i in range(max_clock + 1):
-            print(i, end=',')
-            print(*(str(int(state[i][s])) for s in signals), sep=',')
+        with open(os.path.join(test, 'saida0.csv'), 'w') as f:
+            print('Tempo',*signals, sep=',', file=f)
+            for i in range(max_clock + 1):
+                print(i, end=',', file=f)
+                print(*(str(int(state[i][s])) for s in signals), sep=',', file=f)
+
+
+        state = simulator.simulate_1()
+        signals = sorted(state[0].keys())
+        max_clock = max(state.keys())
+        with open(os.path.join(test, 'saida1.csv'), 'w') as f:
+            print('Tempo',*signals, sep=',', file=f)
+            for i in range(max_clock + 1):
+                print(i, end=',', file=f)
+                print(*(str(int(state[i][s])) for s in signals), sep=',', file=f)

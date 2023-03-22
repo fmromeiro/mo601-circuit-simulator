@@ -19,13 +19,13 @@ class Simulator:
         clock: int = 0
         result = {clock: {}}
         for line in lines:
-            print(line, clock)
+            # print(line, clock)
             if '+1' in line:
                 clock += 1
                 result[clock] = {}
                 continue
             params = line.split()
-            print(params)
+            # print(params)
             signals = params[0]
             values = params[2]
             for i, signal in enumerate(signals):
@@ -40,7 +40,7 @@ class Simulator:
         self.inputs = inputs
 
     @staticmethod
-    def compute(gate: Operations, val_a: SignalValue, val_b: SignalValue = None):
+    def compute(gate: Operations, val_a: SignalValue = None, val_b: SignalValue = None):
         match gate:
             case 'OR':
                 return val_a or val_b
@@ -56,6 +56,66 @@ class Simulator:
                 return val_a == val_b
             case 'NOT':
                 return not val_a
+            case _:
+                return val_a
+
+    def simulate_0_1(self: TSimulator) -> None:
+        clock = 0
+        current_state = {s: False for s in self.circuit.signals.keys()}
+        state = {clock: current_state}
+        while True:
+            state[clock].update(self.inputs.get(clock, {}))
+            # print(state[clock], self.inputs.get(clock))
+            delta = 0
+            d_state = {delta: state[clock].copy()}
+            while True:
+                delta += 1
+                d_state[delta] = d_state[delta - 1].copy()
+                for name, signal in self.circuit.signals.items():
+                    vals = [d_state[delta - 1][inp] for inp in signal.inputs]
+                    if signal.gate:
+                        d_state[delta][name] = self.compute(signal.gate, *vals)
+                    # print(clock, name, signal.gate, vals, d_state[delta][name])
+                if delta > 0 and d_state[delta] == d_state[delta - 1]:
+                    break
+            state[clock] = d_state[delta]
+            # print(clock, state[clock])
+            if clock > 0 and clock > max(self.inputs.keys()) and state[clock] == state[clock -1]:
+                break
+            clock += 1
+            state[clock] = state[clock - 1].copy()
+        # print(state)
+        return state
+
+    def simulate_1(self: TSimulator) -> None:
+        clock = 0
+        current_state = {s: False for s in self.circuit.signals.keys()}
+        state = {clock: current_state}
+        state[clock].update(self.inputs.get(clock, {}))
+        while True:
+            # print(state[clock], self.inputs.get(clock))
+            clock += 1
+            state[clock] = state[clock - 1].copy()
+            state[clock].update(self.inputs.get(clock, {}))
+            # delta = 0
+            # d_state = {delta: state[clock].copy()}
+            for name, signal in self.circuit.signals.items():
+                vals = [state[clock - 1][inp] for inp in signal.inputs]
+                if signal.gate:
+                    state[clock][name] = self.compute(signal.gate, *vals)
+                # print(clock, name, signal.gate, vals, d_state[delta][name])
+            # if delta > 0 and d_state[delta] == d_state[delta - 1]:
+            #     break
+            # state[clock] = d_state[delta]
+            # # print(clock, state[clock])
+            if clock > 0 and clock > max(self.inputs.keys()) and state[clock] == state[clock -1]:
+                break
+            # clock += 1
+            # state[clock] = state[clock - 1].copy()
+        # print(state)
+        return state
+
+
 
     def simulate_0(self: TSimulator) -> None:
         clock = 0
@@ -105,3 +165,4 @@ class Simulator:
             clock += 1
             state[clock] = state[clock - 1].copy()
         return state
+
