@@ -53,57 +53,5 @@ class Circuit:
 
         return Circuit(signals)
 
-    def find_order(self: TCircuit, signals: {SignalName, Signal}) -> [SignalName]:
-        sigs = set(signals.keys())
-        inputs = [sig.name for sig in signals.values() if len(sig.inputs) == 0]
-        ready = set(inputs)
-        sigs = [x for x in sigs if x not in inputs]
-        sorting = []
-        while sigs:
-            last_ready = ready.copy()
-            i = 0
-            while True:
-                if i >= len(sigs):
-                    break
-                sig = sigs[i]
-                signal = signals[sig]
-                if set(signal.inputs) <= ready:
-                    sigs.remove(sig)
-                    ready.add(sig)
-                    sorting.append(sig)
-                else:
-                    i += 1
-            if last_ready == ready:
-                deps = {1: [], 2: []}
-                for s in sigs:
-                    deps[len(signal[s].inputs - ready)].append(s)
-                sig = None
-                if deps[1]:
-                    sig = deps[1][0]
-                else:
-                    sig = deps[2][0]
-                sigs.remove(sig)
-                ready.add(sig)
-                sorting.append(sig)
-        return sorting
-
-    def find_order2(self: TCircuit, signals: {SignalName, Signal}) -> [SignalName]:
-        permanent = set()
-        temporary = set()
-        sigs = set(signals.keys())
-        sorting = []
-
-        def visit(n):
-            if n in permanent:
-                return
-            if n in temporary:
-                return
-
-        while sigs - permanent:
-            n = next(iter(sigs - permanent))
-            visit(n)
-
-
     def __init__(self: TCircuit, signals: {SignalName, Signal}):
         self.signals = signals
-        self.order = self.find_order(signals)
