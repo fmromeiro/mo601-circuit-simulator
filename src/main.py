@@ -24,7 +24,7 @@ if __name__ == '__main__':
     for test in find_tests():
         circuit = build_circuit(test)
         simulator = build_simulator(test, circuit)
-        state = simulator.simulate_0_1()
+        state = simulator.simulate_0()
         signals = sorted(state[0].keys())
         max_clock = max(state.keys())
 

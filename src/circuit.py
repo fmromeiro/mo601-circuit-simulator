@@ -31,7 +31,6 @@ class Circuit:
         signals: {str, Signal} = {}
         for i, line in enumerate(lines):
             parameters = line.split()
-            # print(parameters)
             name = parameters[0]
 
             gate = parameters[2]
@@ -47,7 +46,6 @@ class Circuit:
                     signals[inp] = Signal(inp, '', set(), set())
 
         for name, signal in signals.items():
-            # print(name, signal)
             for in_sig in signal.inputs:
                 signals[in_sig].outputs.add(name)
 
