@@ -1,0 +1,6 @@
+services:
+  circuit-simulation:
+    build: .
+    volumes:
+      - ./test:/app/test
+    privileged: true
