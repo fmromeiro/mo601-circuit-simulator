@@ -57,7 +57,15 @@ class Simulator:
             case _:
                 return val_a
 
-    def simulate_0(self: TSimulator) -> None:
+    def simulate(self: TSimulator, delay: typing.Literal[0, 1]) -> {int: {SignalName: SignalValue}}:
+        if delay == 0:
+            return self.simulate_0()
+        elif delay == 1:
+            return self.simulate_1()
+        else:
+            raise Exception('Invalid delay value')
+
+    def simulate_0(self: TSimulator) -> {int: {SignalName: SignalValue}}:
         clock = 0
         current_state = {s: False for s in self.circuit.signals.keys()}
         state = {clock: current_state}
@@ -81,7 +89,7 @@ class Simulator:
             state[clock] = state[clock - 1].copy()
         return state
 
-    def simulate_1(self: TSimulator) -> None:
+    def simulate_1(self: TSimulator) -> {int: {SignalName: SignalValue}}:
         clock = 0
         current_state = {s: False for s in self.circuit.signals.keys()}
         state = {clock: current_state}

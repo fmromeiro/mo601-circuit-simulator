@@ -1,3 +1,4 @@
+import difflib
 import os
 from circuit import Circuit
 from simulator import Simulator
@@ -24,22 +25,19 @@ if __name__ == '__main__':
     for test in find_tests():
         circuit = build_circuit(test)
         simulator = build_simulator(test, circuit)
-        state = simulator.simulate_0()
-        signals = sorted(state[0].keys())
-        max_clock = max(state.keys())
+        for delay in range(2):
+            state = simulator.simulate(delay)
+            signals = sorted(state[0].keys())
+            max_clock = max(state.keys())
 
-        with open(os.path.join(test, 'saida0.csv'), 'w') as f:
-            print('Tempo',*signals, sep=',', file=f)
-            for i in range(max_clock + 1):
-                print(i, end=',', file=f)
-                print(*(str(int(state[i][s])) for s in signals), sep=',', file=f)
+            with open(os.path.join(test, f'saida{delay}.csv'), 'w') as f:
+                print('Tempo',*signals, sep=',', file=f)
+                for i in range(max_clock + 1):
+                    print(i, end=',', file=f)
+                    print(*(str(int(state[i][s])) for s in signals), sep=',', file=f)
 
-
-        state = simulator.simulate_1()
-        signals = sorted(state[0].keys())
-        max_clock = max(state.keys())
-        with open(os.path.join(test, 'saida1.csv'), 'w') as f:
-            print('Tempo',*signals, sep=',', file=f)
-            for i in range(max_clock + 1):
-                print(i, end=',', file=f)
-                print(*(str(int(state[i][s])) for s in signals), sep=',', file=f)
+            with open(os.path.join(test, f'saida{delay}.csv')) as s:
+                with open(os.path.join(test, f'esperado{delay}.csv')) as e:
+                    diff = list(difflib.ndiff(s.readlines(), e.readlines(), linejunk=difflib.IS_LINE_JUNK))
+                    if not all(x.startswith('  ') for x in diff):
+                        print(f'Teste {test} teve resultado diferente do esperado para delay {delay}')
