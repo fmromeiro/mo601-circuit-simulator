@@ -1,0 +1,7 @@
+A = AND B C
+B = OR D E
+C = NOT F
+D = NAND G H
+I = OR J K
+J = OR I K
+K = XNOR I J

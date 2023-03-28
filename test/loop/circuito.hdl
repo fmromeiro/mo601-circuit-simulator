@@ -1,0 +1,3 @@
+A = OR B C
+B = OR A C
+C = XNOR A B

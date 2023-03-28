@@ -30,6 +30,8 @@ class Circuit:
     def read_spec(lines: [str]) -> TCircuit:
         signals: {str, Signal} = {}
         for i, line in enumerate(lines):
+            if not line:
+                continue
             parameters = line.split()
             name = parameters[0]
 

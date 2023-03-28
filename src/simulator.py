@@ -20,7 +20,7 @@ class Simulator:
         result = {clock: {}}
         for line in lines:
             if not line:
-                break
+                continue
             if '+' in line:
                 step = int(line[1:])
                 clock += step

@@ -21,6 +21,14 @@ def build_simulator(test_path: os.PathLike, circuit: Circuit) -> Simulator:
         inputs = Simulator.read_input(f.readlines())
         return Simulator(circuit, inputs, 1e3, 1e3)
 
+def handle_lines(lines):
+    result = lines[:]
+    if not result[-1]:
+        result = result[:-1]
+    if '\n' in result[-1]:
+        result[-1] = result[-1][:-1]
+    return result
+
 if __name__ == '__main__':
     for test in find_tests():
         print(f'Rodando teste {test}')
@@ -44,6 +52,8 @@ if __name__ == '__main__':
             else:
                 with open(output) as s:
                     with open(expected) as e:
-                        diff = list(difflib.ndiff(s.readlines(), e.readlines(), linejunk=difflib.IS_LINE_JUNK))
+                        s_lines = handle_lines(s.readlines())
+                        e_lines = handle_lines(e.readlines())
+                        diff = list(difflib.ndiff(s_lines, e_lines))
                         if not all(x.startswith('  ') for x in diff):
                             print(f'  Teste {test} teve resultado diferente do esperado para delay {delay}')
