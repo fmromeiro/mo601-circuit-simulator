@@ -19,8 +19,11 @@ class Simulator:
         clock: int = 0
         result = {clock: {}}
         for line in lines:
-            if '+1' in line:
-                clock += 1
+            if not line:
+                break
+            if '+' in line:
+                step = int(line[1:])
+                clock += step
                 result[clock] = {}
                 continue
             params = line.split()
@@ -33,9 +36,13 @@ class Simulator:
 
     def __init__(self: TSimulator,
                  circuit: Circuit,
-                 inputs: {int: {SignalName: SignalValue}}):
+                 inputs: {int: {SignalName: SignalValue}},
+                 delta_limit: int = 1e3,
+                 clock_limit: int = 1e4):
         self.circuit = circuit
         self.inputs = inputs
+        self.delta_limit = delta_limit
+        self.clock_limit = clock_limit
 
     @staticmethod
     def compute(gate: Operations, val_a: SignalValue = None, val_b: SignalValue = None):
@@ -80,12 +87,19 @@ class Simulator:
                     vals = [d_state[delta - 1][inp] for inp in signal.inputs]
                     if signal.gate:
                         d_state[delta][name] = self.compute(signal.gate, *vals)
-                if delta > 0 and d_state[delta] == d_state[delta - 1]:
+                if (delta > self.delta_limit
+                    or (delta > 0
+                        and d_state[delta] == d_state[delta - 1])):
                     break
             state[clock] = d_state[delta]
-            if clock > 0 and clock > max(self.inputs.keys()) and state[clock] == state[clock -1]:
+            if (clock > self.clock_limit
+                    or (clock > 0
+                        and clock > max(self.inputs.keys())
+                        and state[clock] == state[clock -1])):
                 break
             clock += 1
+            if clock % 1000 == 0:
+                print(clock)
             state[clock] = state[clock - 1].copy()
         return state
 
@@ -102,6 +116,9 @@ class Simulator:
                 vals = [state[clock - 1][inp] for inp in signal.inputs]
                 if signal.gate:
                     state[clock][name] = self.compute(signal.gate, *vals)
-            if clock > 0 and clock > max(self.inputs.keys()) and state[clock] == state[clock -1]:
+            if (clock > self.clock_limit
+                or (clock > 0
+                    and clock > max(self.inputs.keys())
+                    and state[clock] == state[clock -1])):
                 break
         return state
