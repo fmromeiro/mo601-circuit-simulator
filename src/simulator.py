@@ -98,8 +98,6 @@ class Simulator:
                         and state[clock] == state[clock -1])):
                 break
             clock += 1
-            if clock % 1000 == 0:
-                print(clock)
             state[clock] = state[clock - 1].copy()
         return state
 
